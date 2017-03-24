@@ -37,12 +37,13 @@ Below are a few _cherry-picked_ in-sample predictions from the model:
 
 * Clone repo: `git clone https://github.com/rtlee9/recipe-summarization.git`
 * Initialize submodules: `git submodule update --init --recursive`
+* Install dependencies: `pip install -r requirements.txt`
 * Setup directories: `python src/config.py`
 * Download recipes from my Google Cloud Bucket: `wget -P recipe-box/data https://storage.googleapis.com/recipe-box/recipes_raw_ar.json; wget -P recipe-box/data https://storage.googleapis.com/recipe-box/recipes_raw_epi.json; wget -P recipe-box/data https://storage.googleapis.com/recipe-box/recipes_raw_fn.json` (alternatively, see the [recipe-box](/recipe-box) submodule to scrape fresh recipe data)
 * Tokenize data: `python src/tokenize_recipes.py`
 * Initialize word embeddings with GloVe vectors:
-  * Get GloVe vectors: `wget -P data http://nlp.stanford.edu/data/glove.6B.zip; unzip data/glove.6B.zip`
-  * Initialize embeddings: `python src/recipe_vectors.py`
+  * Get GloVe vectors: `wget -P data http://nlp.stanford.edu/data/glove.6B.zip; unzip data/glove.6B.zip -d data`
+  * Initialize embeddings: `python src/vocabulary-embedding.py`
 * Train model: `python src/train_seq2seq.py`
 * Make predictions: use src/predict.ipynb
 
