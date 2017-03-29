@@ -1,6 +1,8 @@
 # Recipe summarization
 
-This repo implements a [sequence-to-sequence model](https://arxiv.org/abs/1406.1078) encoder-decoder using [Keras](https://keras.io/) to summarize recipe instructions by predicting a recipe title. This is a fork of Siraj Raval's [How to Make a Text Summarizer](https://github.com/llSourcell/How_to_make_a_text_summarizer).
+This repo implements a [sequence-to-sequence model](https://arxiv.org/abs/1406.1078) encoder-decoder using [Keras](https://keras.io/) to summarize recipe instructions by predicting a recipe title. This is a fork of Siraj Raval's [How to Make a Text Summarizer](https://github.com/llSourcell/How_to_make_a_text_summarizer). It won the coding challenge for that week's [video](https://www.youtube.com/watch?v=ogrJaOIuBx4), and was featured in the following week's [video](https://www.youtube.com/watch?v=nRBnh4qbPHI).
+
+![youtube](youtube_screenshot.jpg)
 
 ## Data
 I [scraped](https://github.com/rtlee9/recipe-box) ~125,000 recipes from various websites for use in this model. Each recipe consists of:
