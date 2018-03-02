@@ -19,7 +19,7 @@ from sample_gen import gensamples
 from utils import prt, load_embedding, process_vocab, load_split_data
 from model import create_model, inspect_model
 from generate import gen
-from constants import maxlend, maxlenh, maxlen, FN1, seed, nb_unknown_words
+from constants import FN1, seed, nb_unknown_words
 
 
 # you should use GPU...
@@ -88,9 +88,6 @@ gensamples(
     sequence=sequence,
     data=(X_test, Y_test),
     idx2word=idx2word,
-    maxlen=maxlen,
-    maxlenh=maxlenh,
-    maxlend=maxlend,
     oov0=oov0,
     glove_idx2idx=glove_idx2idx,
     vocab_size=vocab_size,
@@ -132,9 +129,6 @@ gensamples(
     sequence=sequence,
     data=(X_test, Y_test),
     idx2word=idx2word,
-    maxlen=maxlen,
-    maxlenh=maxlenh,
-    maxlend=maxlend,
     oov0=oov0,
     glove_idx2idx=glove_idx2idx,
     vocab_size=vocab_size,
