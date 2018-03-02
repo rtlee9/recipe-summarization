@@ -93,17 +93,17 @@ gensamples(
     nb_unknown_words=nb_unknown_words,
 )
 
+# get train and validation generators
 r = next(gen(X_train, Y_train, batch_size=batch_size, nb_batches=None, nflips=None, model=None, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word))
-valgen = gen(X_test, Y_test, batch_size=batch_size, nb_batches=3, nflips=None, model=None, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word)
-
-# Train
 traingen = gen(X_train, Y_train, batch_size=batch_size, nb_batches=None, nflips=args.nflips, model=model, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word)
 valgen = gen(X_test, Y_test, batch_size=batch_size, nb_batches=nb_val_samples // batch_size, nflips=None, model=None, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word)
 
+# define callbacks for training
 callbacks = [TensorBoard(
     log_dir=os.path.join(config.path_logs, str(time.time())),
     histogram_freq=2, write_graph=False, write_images=False)]
 
+# train model and save weights
 h = model.fit_generator(
     traingen, samples_per_epoch=nb_train_samples,
     nb_epoch=args.epochs, validation_data=valgen, nb_val_samples=nb_val_samples,
