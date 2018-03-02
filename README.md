@@ -1,11 +1,13 @@
 # Recipe summarization
 
-This repo implements a [sequence-to-sequence model](https://arxiv.org/abs/1406.1078) encoder-decoder using [Keras](https://keras.io/) to summarize recipe instructions by predicting a recipe title. This is a fork of Siraj Raval's [How to Make a Text Summarizer](https://github.com/llSourcell/How_to_make_a_text_summarizer). It won the coding challenge for that week's [video](https://www.youtube.com/watch?v=ogrJaOIuBx4), and was featured in the following week's [video](https://www.youtube.com/watch?v=nRBnh4qbPHI).
+This repo implements a sequence-to-sequence encoder-decoder using Keras to summarize recipe instructions by predicting a recipe title. This code is based on Siraj Raval's [How to Make a Text Summarizer](https://github.com/llSourcell/How_to_make_a_text_summarizer); it won the coding challenge for that week's [video](https://www.youtube.com/watch?v=ogrJaOIuBx4), and was featured in the following week's [video](https://www.youtube.com/watch?v=nRBnh4qbPHI).
 
 ![youtube](youtube_screenshot.jpg)
 
+This repo has been updated since then, so please check out tag `v1.0.0` to view the version associated with the coding challenge. Lastly, note that this repo is not being actively maintained -- I will do my best to respond to any issues opened but make no guarantees.
+
 ## Data
-I [scraped](https://github.com/rtlee9/recipe-box) ~125,000 recipes from various websites for use in this model. Each recipe consists of:
+I scraped 125,000 recipes from various websites for training (additional detail can be found [here](https://github.com/rtlee9/recipe-box)). Each recipe consists of:
 
 * A recipe title
 * A list of ingredients
@@ -15,7 +17,7 @@ I [scraped](https://github.com/rtlee9/recipe-box) ~125,000 recipes from various 
 The model was fitted on the recipe ingredients, instructions and title. Ingredients were concatenated in their original order to the instructions. Recipe images were not used for this model.
 
 ## Training
-This model was trained for ~6 hours on an nVidia Tesla K80. Per suggestion of Siraj, training consisted of several training iterations, in which I successively decremented the learning rate and incremented the number of flips.
+This model was trained for ~6 hours on an nVidia Tesla K80. Training consisted of several training iterations, in which I successively decremented the learning rate and incremented the ratio of flip augmentations.
 
 ## Sampled outputs
 Below are a few _cherry-picked_ in-sample predictions from the model:
