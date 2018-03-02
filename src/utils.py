@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 import _pickle as pickle
 
 import config
-from constants import empty, eos
+from constants import empty, eos, FN0
 
 
 def join_ingredients(ingredients_listlist):
@@ -55,7 +55,7 @@ def str_shape(x):
     return 'x'.join([str(element) for element in x.shape])
 
 
-def load_embedding(FN0, nb_unknown_words):
+def load_embedding(nb_unknown_words):
     """Read word embeddings and vocabulary from disk."""
     with open(os.path.join(config.path_data, '{}.pkl'.format(FN0)), 'rb') as fp:
         embedding, idx2word, word2idx, glove_idx2idx = pickle.load(fp)
@@ -71,7 +71,7 @@ def load_embedding(FN0, nb_unknown_words):
     return embedding, idx2word, word2idx, glove_idx2idx
 
 
-def load_data(FN0):
+def load_data():
     """Read recipe data from disk."""
     with open(os.path.join(config.path_data, '{}.data.pkl'.format(FN0)), 'rb') as fp:
         X, Y = pickle.load(fp)
@@ -96,10 +96,10 @@ def process_vocab(idx2word, vocab_size, oov0, nb_unknown_words):
     return idx2word
 
 
-def load_split_data(FN0, nb_val_samples, seed):
+def load_split_data(nb_val_samples, seed):
     """Create train-test split."""
     # load data and create train test split
-    X, Y = load_data(FN0)
+    X, Y = load_data()
     X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=nb_val_samples, random_state=seed)
     del X, Y  # free up memory by removing X and Y
     return X_train, X_test, Y_train, Y_test

@@ -9,6 +9,7 @@ import keras.backend as K
 import numpy as np
 
 from utils import str_shape
+from constants import maxlend, maxlenh, maxlen, activation_rnn_size, optimizer, p_W, p_U, p_dense, p_emb, regularizer
 
 
 def inspect_model(model):
@@ -26,26 +27,24 @@ def inspect_model(model):
 class SimpleContext(Lambda):
     """Class to implement `simple_context` method as a Keras layer."""
 
-    def __init__(self, fn, maxlend, maxlenh, rnn_size, activation_rnn_size, **kwargs):
+    def __init__(self, fn, rnn_size, **kwargs):
         """Initialize SimpleContext."""
-        self.maxlend, self.maxlenh, self.rnn_size, self.activation_rnn_size = maxlend, maxlenh, rnn_size, activation_rnn_size
+        self.rnn_size = rnn_size
         super(SimpleContext, self).__init__(fn, **kwargs)
         self.supports_masking = True
 
     def compute_mask(self, input, input_mask=None):
         """Compute mask of maxlend."""
-        return input_mask[:, self.maxlend:]
+        return input_mask[:, maxlend:]
 
     def get_output_shape_for(self, input_shape):
         """Get output shape for a given `input_shape`."""
         nb_samples = input_shape[0]
-        n = 2 * (self.rnn_size - self.activation_rnn_size)
-        return (nb_samples, self.maxlenh, n)
+        n = 2 * (self.rnn_size - activation_rnn_size)
+        return (nb_samples, maxlenh, n)
 
 
-def create_model(
-        vocab_size, embedding_size, maxlen, maxlend, maxlenh, regularizer, optimizer, LR,
-        p_emb, embedding, rnn_layers, activation_rnn_size, rnn_size, p_W, p_U, p_dense):
+def create_model(vocab_size, embedding_size, LR, embedding, rnn_layers, rnn_size):
     """Construct and compile LSTM model."""
     # create a standard stacked LSTM
     model = Sequential()
@@ -61,7 +60,7 @@ def create_model(
         model.add(lstm)
         model.add(Dropout(p_dense, name='dropout_{}'.format(i + 1)))
 
-    def simple_context(X, mask, n=activation_rnn_size, maxlend=maxlend, maxlenh=maxlenh):
+    def simple_context(X, mask, n=activation_rnn_size):
         """Reduce the input just to its headline part (second half).
 
         For each word in this part it concatenate the output of the previous layer (RNN)
@@ -90,9 +89,7 @@ def create_model(
         return K.concatenate((desc_avg_word, head_words))
 
     if activation_rnn_size:
-        model.add(SimpleContext(
-            simple_context, maxlend, maxlenh, rnn_size, activation_rnn_size,
-            name='simplecontext_1'))
+        model.add(SimpleContext(simple_context, rnn_size, name='simplecontext_1'))
 
     model.add(TimeDistributed(Dense(
         vocab_size,

@@ -16,3 +16,15 @@ eos = 1
 maxlend = 100
 maxlenh = 15
 maxlen = maxlend + maxlenh
+activation_rnn_size = 40 if maxlend else 0
+nb_unknown_words = 10
+
+# function names
+FN0 = 'vocabulary-embedding'  # filename of vocab embeddings
+FN1 = 'train'  # filename of model weights
+
+# training variables
+seed = 42
+optimizer = 'adam'
+p_W, p_U, p_dense, p_emb, weight_decay = 0, 0, 0, 0, 0
+regularizer = None

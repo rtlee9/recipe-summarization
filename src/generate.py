@@ -14,7 +14,7 @@ import numpy as np
 from keras.preprocessing import sequence
 from keras.utils import np_utils
 
-from constants import empty, eos, maxlend, maxlenh, maxlen
+from constants import empty, eos, maxlend, maxlenh, maxlen, seed
 from sample_gen import vocab_fold, lpadd
 
 
@@ -71,7 +71,7 @@ def conv_seq_labels(xds, xhs, nflips, model, debug, oov0, glove_idx2idx, vocab_s
     return x, y
 
 
-def gen(Xd, Xh, batch_size, nb_batches, nflips, model, debug, seed, oov0, glove_idx2idx, vocab_size, nb_unknown_words, idx2word):
+def gen(Xd, Xh, batch_size, nb_batches, nflips, model, debug, oov0, glove_idx2idx, vocab_size, nb_unknown_words, idx2word):
     """Yield batches.
 
     for training use nb_batches=None
