@@ -15,7 +15,7 @@ from scipy import ndimage, misc
 
 import config
 from type import RecipeContainer, DataContainer
-from utils import URL_to_filename
+from utils import url_to_filename
 
 
 def get_train_val_test_keys(keys, val_pct=.1, test_pct=.1):
@@ -73,7 +73,7 @@ def clean_recipe_keys(recipes):
     """
     recipes_clean = {}
     for key, value in recipes.items():
-        recipes_clean[URL_to_filename(key)] = value
+        recipes_clean[url_to_filename(key)] = value
     return recipes_clean
 
 
@@ -178,7 +178,7 @@ def plot_grids_by_segment(data):
 def get_complete_recipes(recipes, image_list):
     """Return intersection of recipe keys and image keys
     """
-    recipe_keys = [URL_to_filename(k) for k in recipes.keys()]
+    recipe_keys = [url_to_filename(k) for k in recipes.keys()]
     files = np.array([filename for filename in image_list.keys()
                       if filename in recipe_keys])
     print('{:,} complete recipes found'.format(len(files)))

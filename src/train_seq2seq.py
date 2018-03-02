@@ -28,17 +28,7 @@ import keras.backend as K
 
 from constants import empty, eos
 from sample_gen import vocab_fold, lpadd, gensamples
-
-
-def prt(label, word_idx):
-    """Map `word_idx` list to words and print it with its associated `label`."""
-    words = [idx2word[word] for word in word_idx]
-    print('{}: {}\n'.format(label, ' '.join(words)))
-
-
-def str_shape(x):
-    """Format the dimension of numpy array `x` as a string."""
-    return 'x'.join([str(element) for element in x.shape])
+from utils import prt, str_shape
 
 
 def inspect_model(model):
