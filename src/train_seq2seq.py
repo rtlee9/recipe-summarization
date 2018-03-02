@@ -21,6 +21,7 @@ from constants import empty, eos
 from sample_gen import vocab_fold, lpadd, gensamples
 from utils import prt, load_embedding, process_vocab, load_split_data
 from model import create_model, inspect_model
+from constants import maxlend, maxlenh, maxlen
 
 # you should use GPU...
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -33,8 +34,6 @@ parser.add_argument('--FN0', default='vocabulary-embedding', help="filename of v
 parser.add_argument('--FN1', default='train', help="filename of model weights")
 parser.add_argument('--batch-size', type=int, default=32, help='input batch size')
 parser.add_argument('--epochs', type=int, default=10, help='number of epochs')
-parser.add_argument('--maxlend', type=int, default=100, help='max length of description')
-parser.add_argument('--maxlenh', type=int, default=15, help='max length of head')
 parser.add_argument('--rnn-size', type=int, default=512, help='size of RNN layers')
 parser.add_argument('--rnn-layers', type=int, default=3, help='number of RNN layers')
 parser.add_argument('--nsamples', type=int, default=640, help='number of samples per epoch')
@@ -45,9 +44,6 @@ args = parser.parse_args()
 
 # static variables
 FN = 'train'
-maxlend = args.maxlend
-maxlenh = args.maxlenh
-maxlen = maxlend + maxlenh
 rnn_size = args.rnn_size
 rnn_layers = args.rnn_layers
 activation_rnn_size = 40 if maxlend else 0
