@@ -5,22 +5,21 @@ https://github.com/llSourcell/How_to_make_a_text_summarizer/blob/master/train.ip
 """
 import os
 import time
-import config
 import _pickle as pickle
 import random
 import argparse
 
 import numpy as np
-from sklearn.model_selection import train_test_split
 from keras.preprocessing import sequence
 from keras.utils import np_utils
 
 from keras.regularizers import l2
 from keras.callbacks import TensorBoard
 
+import config
 from constants import empty, eos
 from sample_gen import vocab_fold, lpadd, gensamples
-from utils import prt
+from utils import prt, load_embedding, process_vocab, load_split_data
 from model import create_model, inspect_model
 
 # you should use GPU...
@@ -68,62 +67,11 @@ regularizer = l2(weight_decay) if weight_decay else None
 random.seed(seed)
 np.random.seed(seed)
 
-
-def load_embedding():
-    """Read word embeddings and vocabulary from disk."""
-    with open(os.path.join(config.path_data, '{}.pkl'.format(args.FN0)), 'rb') as fp:
-        embedding, idx2word, word2idx, glove_idx2idx = pickle.load(fp)
-    vocab_size, embedding_size = embedding.shape
-    print('dimension of embedding space for words: {:,}'.format(embedding_size))
-    print('vocabulary size: {:,} the last {:,} words can be used as place holders for unknown/oov words'.
-          format(vocab_size, nb_unknown_words))
-    print('total number of different words: {:,}'.format(len(idx2word)))
-    print('number of words outside vocabulary which we can substitue using glove similarity: {:,}'.
-          format(len(glove_idx2idx)))
-    print('number of words that will be regarded as unknonw(unk)/out-of-vocabulary(oov): {:,}'.
-          format(len(idx2word) - vocab_size - len(glove_idx2idx)))
-    return embedding, idx2word, word2idx, glove_idx2idx
-
-
-def load_data():
-    """Read recipe data from disk."""
-    with open(os.path.join(config.path_data, '{}.data.pkl'.format(args.FN0)), 'rb') as fp:
-        X, Y = pickle.load(fp)
-    print('number of examples', len(X), len(Y))
-    return X, Y
-
-
-def process_vocab(idx2word, vocab_size, oov0):
-    """Update vocabulary to account for unknown words."""
-    # reserve vocabulary space for unkown words
-    for i in range(nb_unknown_words):
-        idx2word[vocab_size - 1 - i] = '<{}>'.format(i)
-
-    # mark words outside vocabulary with ^ at their end
-    for i in range(oov0, len(idx2word)):
-        idx2word[i] = idx2word[i] + '^'
-
-    # add empty word and end-of-sentence to vocab
-    idx2word[empty] = '_'
-    idx2word[eos] = '~'
-
-    return idx2word
-
-
-def load_split_data():
-    """Create train-test split."""
-    # load data and create train test split
-    X, Y = load_data()
-    X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=nb_val_samples, random_state=seed)
-    del X, Y  # free up memory by removing X and Y
-    return X_train, X_test, Y_train, Y_test
-
-
-embedding, idx2word, word2idx, glove_idx2idx = load_embedding()
+embedding, idx2word, word2idx, glove_idx2idx = load_embedding(args.FN0, nb_unknown_words)
 vocab_size, embedding_size = embedding.shape
 oov0 = vocab_size - nb_unknown_words
-idx2word = process_vocab(idx2word, vocab_size, oov0)
-X_train, X_test, Y_train, Y_test = load_split_data()
+idx2word = process_vocab(idx2word, vocab_size, oov0, nb_unknown_words)
+X_train, X_test, Y_train, Y_test = load_split_data(args.FN0, nb_val_samples, seed)
 
 # print a sample recipe to make sure everything looks right
 print('Random head, description:')
