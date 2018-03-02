@@ -5,7 +5,6 @@ https://github.com/llSourcell/How_to_make_a_text_summarizer/blob/master/train.ip
 """
 import os
 import time
-import _pickle as pickle
 import random
 import argparse
 
@@ -98,7 +97,6 @@ r = next(gen(X_train, Y_train, batch_size=batch_size, nb_batches=None, nflips=No
 valgen = gen(X_test, Y_test, batch_size=batch_size, nb_batches=3, nflips=None, model=None, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word)
 
 # Train
-history = {}
 traingen = gen(X_train, Y_train, batch_size=batch_size, nb_batches=None, nflips=args.nflips, model=model, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word)
 valgen = gen(X_test, Y_test, batch_size=batch_size, nb_batches=nb_val_samples // batch_size, nflips=None, model=None, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word)
 
@@ -111,10 +109,6 @@ h = model.fit_generator(
     nb_epoch=args.epochs, validation_data=valgen, nb_val_samples=nb_val_samples,
     callbacks=callbacks,
 )
-for k, v in h.history.items():
-    history[k] = history.get(k, []) + v
-with open(os.path.join(config.path_models, 'history.pkl'), 'wb') as fp:
-    pickle.dump(history, fp, -1)
 model.save_weights(FN1_filename, overwrite=True)
 
 # print samples after training
