@@ -57,7 +57,7 @@ def conv_seq_labels(xds, xhs, nflips, model, debug, oov0, glove_idx2idx, vocab_s
     batch_size = len(xhs)
     assert len(xds) == batch_size
     x = [
-        vocab_fold(lpadd(xd, maxlend=maxlend, eos=eos) + xh, oov0, glove_idx2idx, vocab_size, nb_unknown_words)
+        vocab_fold(lpadd(xd) + xh, oov0, glove_idx2idx, vocab_size, nb_unknown_words)
         for xd, xh in zip(xds, xhs)]  # the input does not have 2nd eos
     x = sequence.pad_sequences(x, maxlen=maxlen, value=empty, padding='post', truncating='post')
     x = flip_headline(x, nflips=nflips, model=model, debug=debug, oov0=oov0, idx2word=idx2word)

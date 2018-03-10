@@ -7,10 +7,10 @@ import Levenshtein
 import numpy as np
 import random
 
-from constants import empty, eos
+from constants import empty, eos, maxlend, maxlenh, maxlen
 
 
-def lpadd(x, maxlend, eos):
+def lpadd(x):
     """Left (pre) pad a description to maxlend and then add eos.
 
     The eos is the input to predicting the first word in the headline
@@ -26,8 +26,8 @@ def lpadd(x, maxlend, eos):
 
 
 def beamsearch(
-        predict, start, k, maxsample, use_unk, empty, eos, temperature, nb_unknown_words,
-        vocab_size, model, maxlen, maxlend, sequence, batch_size):
+        predict, start, k, maxsample, use_unk, empty, temperature, nb_unknown_words,
+        vocab_size, model, sequence, batch_size):
     """Return k samples (beams) and their NLL scores, each sample is a sequence of labels.
 
     All samples starts with an `empty` label and end with `eos` or truncated to length of `maxsample`.
@@ -54,7 +54,7 @@ def beamsearch(
 
     while live_k:
         # for every possible live sample calc prob for every possible label
-        probs = predict(live_samples, empty=empty, model=model, maxlen=maxlen, maxlend=maxlend, sequence=sequence, batch_size=batch_size)
+        probs = predict(live_samples, empty=empty, model=model, sequence=sequence, batch_size=batch_size)
 
         # total score for every sample is sum of -log of word prb
         cand_scores = np.array(live_scores)[:, None] - np.log(probs)
@@ -97,7 +97,7 @@ def beamsearch(
     return dead_samples + live_samples, dead_scores + live_scores
 
 
-def keras_rnn_predict(samples, empty, model, maxlen, maxlend, sequence, batch_size):
+def keras_rnn_predict(samples, empty, model, sequence, batch_size):
     """For every sample, calculate probability for every possible label.
 
     You need to supply your RNN model and maxlen - the length of sequences it can handle
@@ -140,7 +140,7 @@ def vocab_unfold(desc, xs, oov0):
 
 def gensamples(
         skips, k, batch_size, short, temperature, use_unk, model, sequence, data, idx2word,
-        maxlen, maxlenh, maxlend, oov0, glove_idx2idx, vocab_size, nb_unknown_words):
+        oov0, glove_idx2idx, vocab_size, nb_unknown_words):
     """Generate text samples."""
     X_test, Y_test = data  # unpack data
     i = random.randint(0, len(X_test) - 1)
@@ -156,7 +156,7 @@ def gensamples(
     else:
         skips = range(min(maxlend, len(x)), max(maxlend, len(x)), abs(maxlend - len(x)) // skips + 1)
     for s in skips:
-        start = lpadd(x[:s], maxlend, eos)
+        start = lpadd(x[:s])
         fold_start = vocab_fold(start, oov0, glove_idx2idx, vocab_size, nb_unknown_words)
         sample, score = beamsearch(
             predict=keras_rnn_predict,
@@ -164,14 +164,11 @@ def gensamples(
             k=k,
             maxsample=maxlen,
             empty=empty,
-            eos=eos,
             temperature=temperature,
             use_unk=use_unk,
             nb_unknown_words=nb_unknown_words,
             vocab_size=vocab_size,
             model=model,
-            maxlen=maxlen,
-            maxlend=maxlend,
             sequence=sequence,
             batch_size=batch_size
         )

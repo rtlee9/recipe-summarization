@@ -5,7 +5,6 @@ https://github.com/llSourcell/How_to_make_a_text_summarizer/blob/master/train.ip
 """
 import os
 import time
-import _pickle as pickle
 import random
 import argparse
 
@@ -19,7 +18,7 @@ from sample_gen import gensamples
 from utils import prt, load_embedding, process_vocab, load_split_data
 from model import create_model, inspect_model
 from generate import gen
-from constants import maxlend, maxlenh, maxlen, FN1, seed, nb_unknown_words
+from constants import FN1, seed, nb_unknown_words
 
 
 # you should use GPU...
@@ -88,36 +87,28 @@ gensamples(
     sequence=sequence,
     data=(X_test, Y_test),
     idx2word=idx2word,
-    maxlen=maxlen,
-    maxlenh=maxlenh,
-    maxlend=maxlend,
     oov0=oov0,
     glove_idx2idx=glove_idx2idx,
     vocab_size=vocab_size,
     nb_unknown_words=nb_unknown_words,
 )
 
+# get train and validation generators
 r = next(gen(X_train, Y_train, batch_size=batch_size, nb_batches=None, nflips=None, model=None, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word))
-valgen = gen(X_test, Y_test, batch_size=batch_size, nb_batches=3, nflips=None, model=None, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word)
-
-# Train
-history = {}
 traingen = gen(X_train, Y_train, batch_size=batch_size, nb_batches=None, nflips=args.nflips, model=model, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word)
 valgen = gen(X_test, Y_test, batch_size=batch_size, nb_batches=nb_val_samples // batch_size, nflips=None, model=None, debug=False, oov0=oov0, glove_idx2idx=glove_idx2idx, vocab_size=vocab_size, nb_unknown_words=nb_unknown_words, idx2word=idx2word)
 
+# define callbacks for training
 callbacks = [TensorBoard(
     log_dir=os.path.join(config.path_logs, str(time.time())),
     histogram_freq=2, write_graph=False, write_images=False)]
 
+# train model and save weights
 h = model.fit_generator(
     traingen, samples_per_epoch=nb_train_samples,
     nb_epoch=args.epochs, validation_data=valgen, nb_val_samples=nb_val_samples,
     callbacks=callbacks,
 )
-for k, v in h.history.items():
-    history[k] = history.get(k, []) + v
-with open(os.path.join(config.path_models, 'history.pkl'), 'wb') as fp:
-    pickle.dump(history, fp, -1)
 model.save_weights(FN1_filename, overwrite=True)
 
 # print samples after training
@@ -132,9 +123,6 @@ gensamples(
     sequence=sequence,
     data=(X_test, Y_test),
     idx2word=idx2word,
-    maxlen=maxlen,
-    maxlenh=maxlenh,
-    maxlend=maxlend,
     oov0=oov0,
     glove_idx2idx=glove_idx2idx,
     vocab_size=vocab_size,
