@@ -20,12 +20,6 @@ from model import create_model, inspect_model
 from generate import gen
 from constants import FN1, seed, nb_unknown_words
 
-
-# you should use GPU...
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-# ...but if it is busy then you always can fall back to your CPU with
-# os.environ['THEANO_FLAGS'] = 'device=cpu,floatX=float32'
-
 # parse arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch-size', type=int, default=32, help='input batch size')
