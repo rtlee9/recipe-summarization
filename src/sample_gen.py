@@ -28,7 +28,7 @@ def lpadd(x):
 
 def beamsearch(
         predict, start, k, maxsample, use_unk, empty, temperature, nb_unknown_words,
-        vocab_size, model, batch_size):
+        vocab_size, model, batch_size, avoid=None, avoid_score=1):
     """Return k samples (beams) and their NLL scores, each sample is a sequence of labels.
 
     All samples starts with an `empty` label and end with `eos` or truncated to length of `maxsample`.
@@ -63,6 +63,16 @@ def beamsearch(
         if not use_unk:
             for i in range(nb_unknown_words):
                 cand_scores[:, vocab_size - 1 - i] = 1e20
+
+        if avoid:
+            for a in avoid:
+                for i, s in enumerate(live_samples):
+                    n = len(s) - len(start)
+                    if n < len(a):
+                        # at this point live_sample is before the new word,
+                        # which should be avoided, is added
+                        cand_scores[i, a[n]] += avoid_score
+
         live_scores = list(cand_scores.flatten())
 
         # find the best (lowest) scores we have from all possible dead samples and
@@ -141,13 +151,20 @@ def vocab_unfold(desc, xs, oov0):
 
 def gensamples(
         skips, k, batch_size, short, temperature, use_unk, model, data, idx2word,
-        oov0, glove_idx2idx, vocab_size, nb_unknown_words):
+        oov0, glove_idx2idx, vocab_size, nb_unknown_words, avoid=None, avoid_score=1):
     """Generate text samples."""
     X_test, Y_test = data  # unpack data
     i = random.randint(0, len(X_test) - 1)
     print('HEAD:', ' '.join(idx2word[w] for w in Y_test[i][:maxlenh]))
     print('DESC:', ' '.join(idx2word[w] for w in X_test[i][:maxlend]))
     sys.stdout.flush()
+
+    if avoid:
+        # avoid is a list of avoids. Each avoid is a string or list of word indeicies
+        if isinstance(avoid, str) or isinstance(avoid[0], int):
+            avoid[avoid]
+        avoid = [a.split() if isinstance(a, str) else a for a in avoid]
+        avoid = [[a] for a in avoid]
 
     print('HEADS:')
     x = X_test[i]
@@ -170,7 +187,8 @@ def gensamples(
             nb_unknown_words=nb_unknown_words,
             vocab_size=vocab_size,
             model=model,
-            batch_size=batch_size
+            batch_size=batch_size,
+            avoid=avoid,
         )
         assert all(s[maxlend] == eos for s in sample)
         samples += [(s, start, scr) for s, scr in zip(sample, score)]
