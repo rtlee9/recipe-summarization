@@ -193,3 +193,4 @@ def gensamples(
         else:
                 print(score, ' '.join(words))
         codes.append(code)
+    return samples
