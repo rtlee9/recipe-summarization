@@ -10,7 +10,6 @@ import argparse
 import json
 
 import numpy as np
-from keras.preprocessing import sequence
 from keras.callbacks import TensorBoard
 
 import config
@@ -90,7 +89,6 @@ gensamples(
     temperature=args.temperature,
     use_unk=True,
     model=model,
-    sequence=sequence,
     data=(X_test, Y_test),
     idx2word=idx2word,
     oov0=oov0,
@@ -126,7 +124,6 @@ gensamples(
     temperature=args.temperature,
     use_unk=True,
     model=model,
-    sequence=sequence,
     data=(X_test, Y_test),
     idx2word=idx2word,
     oov0=oov0,

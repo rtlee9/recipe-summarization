@@ -6,6 +6,7 @@ import sys
 import Levenshtein
 import numpy as np
 import random
+from keras.preprocessing import sequence
 
 from constants import empty, eos, maxlend, maxlenh, maxlen
 
@@ -27,7 +28,7 @@ def lpadd(x):
 
 def beamsearch(
         predict, start, k, maxsample, use_unk, empty, temperature, nb_unknown_words,
-        vocab_size, model, sequence, batch_size):
+        vocab_size, model, batch_size):
     """Return k samples (beams) and their NLL scores, each sample is a sequence of labels.
 
     All samples starts with an `empty` label and end with `eos` or truncated to length of `maxsample`.
@@ -54,7 +55,7 @@ def beamsearch(
 
     while live_k:
         # for every possible live sample calc prob for every possible label
-        probs = predict(live_samples, empty=empty, model=model, sequence=sequence, batch_size=batch_size)
+        probs = predict(live_samples, empty=empty, model=model, batch_size=batch_size)
 
         # total score for every sample is sum of -log of word prb
         cand_scores = np.array(live_scores)[:, None] - np.log(probs)
@@ -97,7 +98,7 @@ def beamsearch(
     return dead_samples + live_samples, dead_scores + live_scores
 
 
-def keras_rnn_predict(samples, empty, model, sequence, batch_size):
+def keras_rnn_predict(samples, empty, model, batch_size):
     """For every sample, calculate probability for every possible label.
 
     You need to supply your RNN model and maxlen - the length of sequences it can handle
@@ -139,7 +140,7 @@ def vocab_unfold(desc, xs, oov0):
 
 
 def gensamples(
-        skips, k, batch_size, short, temperature, use_unk, model, sequence, data, idx2word,
+        skips, k, batch_size, short, temperature, use_unk, model, data, idx2word,
         oov0, glove_idx2idx, vocab_size, nb_unknown_words):
     """Generate text samples."""
     X_test, Y_test = data  # unpack data
@@ -169,7 +170,6 @@ def gensamples(
             nb_unknown_words=nb_unknown_words,
             vocab_size=vocab_size,
             model=model,
-            sequence=sequence,
             batch_size=batch_size
         )
         assert all(s[maxlend] == eos for s in sample)
