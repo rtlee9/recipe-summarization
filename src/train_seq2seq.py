@@ -7,10 +7,10 @@ import os
 import time
 import random
 import argparse
+import json
 
 import numpy as np
 from keras.preprocessing import sequence
-
 from keras.callbacks import TensorBoard
 
 import config
@@ -52,6 +52,18 @@ print('Random head, description:')
 i = 811
 prt('H', Y_train[i], idx2word)
 prt('D', X_train[i], idx2word)
+
+# save model initialization parameters
+model_params = (dict(
+    vocab_size=vocab_size,
+    embedding_size=embedding_size,
+    LR=args.lr,
+    rnn_layers=args.rnn_layers,
+    rnn_size=args.rnn_size,
+))
+with open(os.path.join(config.path_models, 'model_params.json'), 'w') as f:
+    json.dump(model_params, f)
+
 
 model = create_model(
     vocab_size=vocab_size,
