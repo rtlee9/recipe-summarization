@@ -1,3 +1,4 @@
+"""Preprocess recipe data for training."""
 import os
 from os import path
 from glob import glob
@@ -7,9 +8,6 @@ import pickle
 import argparse
 
 import numpy as np
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
 from textwrap import wrap
 from scipy import ndimage, misc
 
@@ -17,11 +15,14 @@ import config
 from type import RecipeContainer, DataContainer
 from utils import url_to_filename
 
+# import matplotlib using agg backend
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+
 
 def get_train_val_test_keys(keys, val_pct=.1, test_pct=.1):
-    """
-    Split a list of keys into three groups: train, validation, and test
-    """
+    """Split a list of keys into three groups: train, validation, and test."""
     n = keys.shape[0]
     np.random.shuffle(keys)
     test_cutoff = 1 - test_pct
@@ -30,8 +31,7 @@ def get_train_val_test_keys(keys, val_pct=.1, test_pct=.1):
 
 
 def files_to_containers(files, recipes, image_list):
-    """Store recipe components as a data container
-    """
+    """Store recipe components as a data container."""
     images = np.array([image_list[f] for f in files])
     titles = np.array([recipes[f]['title'] for f in files])
     ingredients = np.array([recipes[f]['ingredients'] for f in files])
@@ -40,9 +40,7 @@ def files_to_containers(files, recipes, image_list):
 
 
 def get_plt_grid(df, labels, subplot_shape=(4, 6), fig_size=(12, 8)):
-    """Return a matplotlib grid of randomly selected images
-    from dataframe df of shape subplot_shape
-    """
+    """Return a matplotlib grid of randomly selected images from dataframe df of shape subplot_shape."""
     fig, axes = plt.subplots(*subplot_shape)
     for ax in axes.ravel():
         rand_index = np.random.randint(0, df.shape[0])
@@ -60,8 +58,7 @@ def get_plt_grid(df, labels, subplot_shape=(4, 6), fig_size=(12, 8)):
 
 
 def load_recipe(filename):
-    """Load a single recipe collection from disk
-    """
+    """Load a single recipe collection from disk."""
     with open(filename, 'r') as f:
         recipes = json.load(f)
     print('Loaded {:,} recipes from {}'.format(len(recipes), filename))
@@ -69,8 +66,7 @@ def load_recipe(filename):
 
 
 def clean_recipe_keys(recipes):
-    """Clean recipe keys by stripping URLs of special characters
-    """
+    """Clean recipe keys by stripping URLs of special characters."""
     recipes_clean = {}
     for key, value in recipes.items():
         recipes_clean[url_to_filename(key)] = value
@@ -78,8 +74,7 @@ def clean_recipe_keys(recipes):
 
 
 def load_recipes():
-    """Load all recipe collections from disk and combine into single dataset
-    """
+    """Load all recipe collections from disk and combine into single dataset."""
     recipes = {}
     for filename in glob(path.join(config.path_recipe_box_data, 'recipes_raw*.json')):
         recipes.update(load_recipe(filename))
@@ -88,10 +83,7 @@ def load_recipes():
 
 
 def load_images(img_dims):
-    """Load all images into a dictionary with
-        key: filename
-        value: numpy array image
-    """
+    """Load all images into a dictionary with filename as the key and numpy image array as the value."""
     image_list = {}
     for root, dirnames, filenames in os.walk(config.path_img):
         for filename in filenames:
@@ -111,29 +103,26 @@ def load_images(img_dims):
 
 
 def _get_shape_str(shape):
-    """Convert image shape to string for filename description
-    """
+    """Convert image shape to string for filename description."""
     return '{}_{}'.format(*shape[:2])
 
+
 def _get_npy_filename(shape):
-    """Return absolute path for npy image file
-    """
+    """Return absolute path for npy image file."""
     shape_str = _get_shape_str(shape)
     return path.join(
         config.path_recipe_box_data, 'images_processed_{}.npy'.format(shape_str))
 
 
 def _get_filename_filename(shape):
-    """Return absolute path for filename storage
-    """
+    """Return absolute path for filename storage."""
     shape_str = _get_shape_str(shape)
     return path.join(
         config.path_recipe_box_data, 'images_processed_filenames_{}.pk'.format(shape_str))
 
 
 def save_images(image_list):
-    """Save images and associated keys to disk
-    """
+    """Save images and associated keys to disk."""
     filenames, images = list(image_list.keys()), np.array(list(image_list.values()))
     shape = images.shape[1:]
     np.save(_get_npy_filename(shape), images)
@@ -143,8 +132,7 @@ def save_images(image_list):
 
 
 def load_images_disk(shape):
-    """Load preprocessed images and associated keys from disk
-    """
+    """Load preprocessed images and associated keys from disk."""
     images = np.load(_get_npy_filename(shape))
     with open(_get_filename_filename(shape), 'rb') as f:
         filenames = pickle.load(f)
@@ -153,8 +141,9 @@ def load_images_disk(shape):
 
 
 def smart_load_images(img_dims):
-    """Load preprocessed images and associated keys from disk if available;
-    otherwise, load raw images from disk, process, then save to disk
+    """Load preprocessed images and associated keys from disk if available.
+
+    Otherwise, load raw images from disk, process, then save to disk.
     """
     path_load = _get_npy_filename(img_dims)
     if path.exists(path_load):
@@ -166,8 +155,7 @@ def smart_load_images(img_dims):
 
 
 def plot_grids_by_segment(data):
-    """Plot image sample
-    """
+    """Plot image sample."""
     get_plt_grid(data.train.images, data.train.titles).savefig(
         path.join(config.path_outputs, 'sample-train-imgs.png'))
     get_plt_grid(data.validation.images, data.validation.titles).savefig(
@@ -175,9 +163,9 @@ def plot_grids_by_segment(data):
     get_plt_grid(data.test.images, data.test.titles).savefig(
         path.join(config.path_outputs, 'sample-test-imgs.png'))
 
+
 def get_complete_recipes(recipes, image_list):
-    """Return intersection of recipe keys and image keys
-    """
+    """Return intersection of recipe keys and image keys."""
     recipe_keys = [url_to_filename(k) for k in recipes.keys()]
     files = np.array([filename for filename in image_list.keys()
                       if filename in recipe_keys])
@@ -186,9 +174,7 @@ def get_complete_recipes(recipes, image_list):
 
 
 def save_data_container(data, filename_pickle):
-    """Save data container to disk in multiple pieces
-    to keep under 2GB limit
-    """
+    """Save data container to disk in multiple pieces to keep under 2GB limit."""
     with open(filename_pickle + '_train.pk', 'wb') as f:
         pickle.dump(data.train, f)
     with open(filename_pickle + '_validation.pk', 'wb') as f:
@@ -199,8 +185,7 @@ def save_data_container(data, filename_pickle):
 
 
 def load_recipe_container(filename_pickle):
-    """Load data containers from disk and create super container
-    """
+    """Load data containers from disk and create super container."""
     with open(filename_pickle + '_train.pk', 'rb') as f:
         train = pickle.load(f)
     with open(filename_pickle + '_validation.pk', 'rb') as f:
@@ -211,10 +196,10 @@ def load_recipe_container(filename_pickle):
 
 
 def save_recipes(filename_pickle, batch_size):
-    """Load preprocessed data container from disk if available;
-    otherwise, create container and then save to disk
-    """
+    """Load preprocessed data container from disk if available.
 
+    Otherwise, create container and then save to disk
+    """
     # Load recipes and images
     recipes = load_recipes()
     image_list = smart_load_images(batch_size)
@@ -240,8 +225,7 @@ def save_recipes(filename_pickle, batch_size):
 
 
 def pickled_data_container_exists(filename_pickle):
-    """Check whether pickled data container exists at expected path
-    """
+    """Check whether pickled data container exists at expected path."""
     if not path.exists(filename_pickle + '_train.pk'):
         return False
     elif not path.exists(filename_pickle + '_validation.pk'):
@@ -253,10 +237,7 @@ def pickled_data_container_exists(filename_pickle):
 
 
 def main(img_size=64):
-    """Return a single data container containing all recipe components, split
-    into train, validation, and test sets
-    """
-
+    """Return a single data container containing all recipe components, split into train, validation, and test sets."""
     filename_pickle = path.join(config.path_data, 'data_processed')
     if not pickled_data_container_exists(filename_pickle):
         data = save_recipes(filename_pickle, (img_size, img_size))
