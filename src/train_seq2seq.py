@@ -29,6 +29,7 @@ parser.add_argument('--nsamples', type=int, default=640, help='number of samples
 parser.add_argument('--nflips', type=int, default=0, help='number of flips')
 parser.add_argument('--temperature', type=float, default=.8, help='RNN temperature')
 parser.add_argument('--lr', type=float, default=0.0001, help='learning rate, default=0.0001')
+parser.add_argument('--warm-start', action='store_true')
 args = parser.parse_args()
 batch_size = args.batch_size
 
@@ -76,7 +77,7 @@ inspect_model(model)
 
 # load pre-trained model weights
 FN1_filename = os.path.join(config.path_models, '{}.hdf5'.format(FN1))
-if FN1 and os.path.exists(FN1_filename):
+if args.warm_start and FN1 and os.path.exists(FN1_filename):
     model.load_weights(FN1_filename)
     print('Model weights loaded from {}'.format(FN1_filename))
 
