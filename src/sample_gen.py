@@ -2,10 +2,10 @@
 
 Variation on https://github.com/ryankiros/skip-thoughts/blob/master/decoding/search.py
 """
-import sys
 import Levenshtein
 import numpy as np
 import random
+from keras.preprocessing import sequence
 
 from constants import empty, eos, maxlend, maxlenh, maxlen
 
@@ -27,7 +27,7 @@ def lpadd(x):
 
 def beamsearch(
         predict, start, k, maxsample, use_unk, empty, temperature, nb_unknown_words,
-        vocab_size, model, sequence, batch_size):
+        vocab_size, model, batch_size, avoid=None, avoid_score=1):
     """Return k samples (beams) and their NLL scores, each sample is a sequence of labels.
 
     All samples starts with an `empty` label and end with `eos` or truncated to length of `maxsample`.
@@ -54,7 +54,7 @@ def beamsearch(
 
     while live_k:
         # for every possible live sample calc prob for every possible label
-        probs = predict(live_samples, empty=empty, model=model, sequence=sequence, batch_size=batch_size)
+        probs = predict(live_samples, empty=empty, model=model, batch_size=batch_size)
 
         # total score for every sample is sum of -log of word prb
         cand_scores = np.array(live_scores)[:, None] - np.log(probs)
@@ -62,6 +62,16 @@ def beamsearch(
         if not use_unk:
             for i in range(nb_unknown_words):
                 cand_scores[:, vocab_size - 1 - i] = 1e20
+
+        if avoid:
+            for a in avoid:
+                for i, s in enumerate(live_samples):
+                    n = len(s) - len(start)
+                    if n < len(a):
+                        # at this point live_sample is before the new word,
+                        # which should be avoided, is added
+                        cand_scores[i, a[n]] += avoid_score
+
         live_scores = list(cand_scores.flatten())
 
         # find the best (lowest) scores we have from all possible dead samples and
@@ -97,7 +107,7 @@ def beamsearch(
     return dead_samples + live_samples, dead_scores + live_scores
 
 
-def keras_rnn_predict(samples, empty, model, sequence, batch_size):
+def keras_rnn_predict(samples, empty, model, batch_size):
     """For every sample, calculate probability for every possible label.
 
     You need to supply your RNN model and maxlen - the length of sequences it can handle
@@ -139,17 +149,33 @@ def vocab_unfold(desc, xs, oov0):
 
 
 def gensamples(
-        skips, k, batch_size, short, temperature, use_unk, model, sequence, data, idx2word,
-        oov0, glove_idx2idx, vocab_size, nb_unknown_words):
+        skips, short, data, idx2word, oov0, glove_idx2idx, vocab_size,
+        nb_unknown_words, avoid=None, avoid_score=1, **kwargs):
     """Generate text samples."""
-    X_test, Y_test = data  # unpack data
-    i = random.randint(0, len(X_test) - 1)
-    print('HEAD:', ' '.join(idx2word[w] for w in Y_test[i][:maxlenh]))
-    print('DESC:', ' '.join(idx2word[w] for w in X_test[i][:maxlend]))
-    sys.stdout.flush()
+    # unpack data
+    X, Y = data
+
+    # if data is full dataset pick a random header and description
+    if isinstance(X, int):
+        i = random.randint(0, len(X) - 1)
+        x = X[i]
+        y = Y[i]
+    else:
+        x = X
+        y = Y
+
+    # print header and description
+    print('HEAD:', ' '.join(idx2word[w] for w in y[:maxlenh]))
+    print('DESC:', ' '.join(idx2word[w] for w in x[:maxlend]))
+
+    if avoid:
+        # avoid is a list of avoids. Each avoid is a string or list of word indeicies
+        if isinstance(avoid, str) or isinstance(avoid[0], int):
+            avoid[avoid]
+        avoid = [a.split() if isinstance(a, str) else a for a in avoid]
+        avoid = [[a] for a in avoid]
 
     print('HEADS:')
-    x = X_test[i]
     samples = []
     if maxlend == 0:
         skips = [0]
@@ -161,16 +187,12 @@ def gensamples(
         sample, score = beamsearch(
             predict=keras_rnn_predict,
             start=fold_start,
-            k=k,
             maxsample=maxlen,
             empty=empty,
-            temperature=temperature,
-            use_unk=use_unk,
             nb_unknown_words=nb_unknown_words,
             vocab_size=vocab_size,
-            model=model,
-            sequence=sequence,
-            batch_size=batch_size
+            avoid=avoid,
+            **kwargs
         )
         assert all(s[maxlend] == eos for s in sample)
         samples += [(s, start, scr) for s, scr in zip(sample, score)]
@@ -193,3 +215,4 @@ def gensamples(
         else:
                 print(score, ' '.join(words))
         codes.append(code)
+    return samples

@@ -44,13 +44,15 @@ class SimpleContext(Lambda):
         return (nb_samples, maxlenh, n)
 
 
-def create_model(vocab_size, embedding_size, LR, embedding, rnn_layers, rnn_size):
+def create_model(vocab_size, embedding_size, LR, rnn_layers, rnn_size, embedding=None):
     """Construct and compile LSTM model."""
     # create a standard stacked LSTM
+    if embedding is not None:
+        embedding = [embedding]
     model = Sequential()
     model.add(Embedding(vocab_size, embedding_size,
                         input_length=maxlen,
-                        W_regularizer=regularizer, dropout=p_emb, weights=[embedding], mask_zero=True,
+                        W_regularizer=regularizer, dropout=p_emb, weights=embedding, mask_zero=True,
                         name='embedding_1'))
     for i in range(rnn_layers):
         lstm = LSTM(rnn_size, return_sequences=True,

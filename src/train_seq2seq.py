@@ -7,10 +7,9 @@ import os
 import time
 import random
 import argparse
+import json
 
 import numpy as np
-from keras.preprocessing import sequence
-
 from keras.callbacks import TensorBoard
 
 import config
@@ -19,12 +18,6 @@ from utils import prt, load_embedding, process_vocab, load_split_data
 from model import create_model, inspect_model
 from generate import gen
 from constants import FN1, seed, nb_unknown_words
-
-
-# you should use GPU...
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-# ...but if it is busy then you always can fall back to your CPU with
-# os.environ['THEANO_FLAGS'] = 'device=cpu,floatX=float32'
 
 # parse arguments
 parser = argparse.ArgumentParser()
@@ -36,6 +29,7 @@ parser.add_argument('--nsamples', type=int, default=640, help='number of samples
 parser.add_argument('--nflips', type=int, default=0, help='number of flips')
 parser.add_argument('--temperature', type=float, default=.8, help='RNN temperature')
 parser.add_argument('--lr', type=float, default=0.0001, help='learning rate, default=0.0001')
+parser.add_argument('--warm-start', action='store_true')
 args = parser.parse_args()
 batch_size = args.batch_size
 
@@ -59,6 +53,18 @@ i = 811
 prt('H', Y_train[i], idx2word)
 prt('D', X_train[i], idx2word)
 
+# save model initialization parameters
+model_params = (dict(
+    vocab_size=vocab_size,
+    embedding_size=embedding_size,
+    LR=args.lr,
+    rnn_layers=args.rnn_layers,
+    rnn_size=args.rnn_size,
+))
+with open(os.path.join(config.path_models, 'model_params.json'), 'w') as f:
+    json.dump(model_params, f)
+
+
 model = create_model(
     vocab_size=vocab_size,
     embedding_size=embedding_size,
@@ -71,7 +77,7 @@ inspect_model(model)
 
 # load pre-trained model weights
 FN1_filename = os.path.join(config.path_models, '{}.hdf5'.format(FN1))
-if FN1 and os.path.exists(FN1_filename):
+if args.warm_start and FN1 and os.path.exists(FN1_filename):
     model.load_weights(FN1_filename)
     print('Model weights loaded from {}'.format(FN1_filename))
 
@@ -84,7 +90,6 @@ gensamples(
     temperature=args.temperature,
     use_unk=True,
     model=model,
-    sequence=sequence,
     data=(X_test, Y_test),
     idx2word=idx2word,
     oov0=oov0,
@@ -120,7 +125,6 @@ gensamples(
     temperature=args.temperature,
     use_unk=True,
     model=model,
-    sequence=sequence,
     data=(X_test, Y_test),
     idx2word=idx2word,
     oov0=oov0,
