@@ -9,3 +9,4 @@ scikit_learn==0.18.1
 jupyter==1.0.0
 tensorflow-gpu==1.5.0
 h5py==2.7.1
+serveit==0.0.5a1
