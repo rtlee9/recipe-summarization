@@ -153,11 +153,21 @@ def gensamples(
         skips, k, batch_size, short, temperature, use_unk, model, data, idx2word,
         oov0, glove_idx2idx, vocab_size, nb_unknown_words, avoid=None, avoid_score=1):
     """Generate text samples."""
-    X_test, Y_test = data  # unpack data
-    i = random.randint(0, len(X_test) - 1)
-    print('HEAD:', ' '.join(idx2word[w] for w in Y_test[i][:maxlenh]))
-    print('DESC:', ' '.join(idx2word[w] for w in X_test[i][:maxlend]))
-    sys.stdout.flush()
+    # unpack data
+    X, Y = data
+
+    # if data is full dataset pick a random header and description
+    if isinstance(X, int):
+        i = random.randint(0, len(X) - 1)
+        x = X[i]
+        y = Y[i]
+    else:
+        x = X
+        y = Y
+
+    # print header and description
+    print('HEAD:', ' '.join(idx2word[w] for w in y[:maxlenh]))
+    print('DESC:', ' '.join(idx2word[w] for w in x[:maxlend]))
 
     if avoid:
         # avoid is a list of avoids. Each avoid is a string or list of word indeicies
@@ -167,7 +177,6 @@ def gensamples(
         avoid = [[a] for a in avoid]
 
     print('HEADS:')
-    x = X_test[i]
     samples = []
     if maxlend == 0:
         skips = [0]
