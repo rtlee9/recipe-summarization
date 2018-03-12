@@ -2,7 +2,6 @@
 
 Variation on https://github.com/ryankiros/skip-thoughts/blob/master/decoding/search.py
 """
-import sys
 import Levenshtein
 import numpy as np
 import random
@@ -150,8 +149,8 @@ def vocab_unfold(desc, xs, oov0):
 
 
 def gensamples(
-        skips, k, batch_size, short, temperature, use_unk, model, data, idx2word,
-        oov0, glove_idx2idx, vocab_size, nb_unknown_words, avoid=None, avoid_score=1):
+        skips, short, data, idx2word, oov0, glove_idx2idx, vocab_size,
+        nb_unknown_words, avoid=None, avoid_score=1, **kwargs):
     """Generate text samples."""
     # unpack data
     X, Y = data
@@ -188,16 +187,12 @@ def gensamples(
         sample, score = beamsearch(
             predict=keras_rnn_predict,
             start=fold_start,
-            k=k,
             maxsample=maxlen,
             empty=empty,
-            temperature=temperature,
-            use_unk=use_unk,
             nb_unknown_words=nb_unknown_words,
             vocab_size=vocab_size,
-            model=model,
-            batch_size=batch_size,
             avoid=avoid,
+            **kwargs
         )
         assert all(s[maxlend] == eos for s in sample)
         samples += [(s, start, scr) for s, scr in zip(sample, score)]
