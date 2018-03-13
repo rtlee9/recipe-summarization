@@ -156,7 +156,7 @@ def gensamples(
     X, Y = data
 
     # if data is full dataset pick a random header and description
-    if isinstance(X, int):
+    if not isinstance(X[0], int):
         i = random.randint(0, len(X) - 1)
         x = X[i]
         y = Y[i]
