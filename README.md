@@ -6,8 +6,12 @@ This repo implements a sequence-to-sequence encoder-decoder using Keras to summa
 
 This repo has been updated since then, so please check out tag `v1.0.0` to view the version associated with the coding challenge. Lastly, note that this repo is not being actively maintained -- I will do my best to respond to any issues opened but make no guarantees.
 
+Please consider buying me a coffee if you like my work:
+
+<a href="https://www.buymeacoffee.com/6Ii7vzL" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
+
 ## Data
-I scraped 125,000 recipes from various websites for training (additional detail can be found [here](https://github.com/rtlee9/recipe-box)). Each recipe consists of:
+I scraped 125,000 recipes from various websites for training (additional details can be found [here](https://github.com/rtlee9/recipe-box)). Each recipe consists of:
 
 * A recipe title
 * A list of ingredients
