@@ -15,9 +15,11 @@ from model import create_model
 from sample_gen import gensamples
 
 # set seeds in random libraries
-seed = 42
-random.seed(seed)
-np.random.seed(seed)
+#seed = 422111
+#seed = 1
+#seed = 1
+#random.seed(seed)
+#np.random.seed(seed)
 
 
 def load_weights(model, filepath):

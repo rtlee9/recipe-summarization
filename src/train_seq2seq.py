@@ -21,11 +21,12 @@ from constants import FN1, seed, nb_unknown_words
 
 # parse arguments
 parser = argparse.ArgumentParser()
+parser.add_argument('--validation-size', type=int, default=10, help='input validation size')
 parser.add_argument('--batch-size', type=int, default=32, help='input batch size')
 parser.add_argument('--epochs', type=int, default=10, help='number of epochs')
 parser.add_argument('--rnn-size', type=int, default=512, help='size of RNN layers')
 parser.add_argument('--rnn-layers', type=int, default=3, help='number of RNN layers')
-parser.add_argument('--nsamples', type=int, default=640, help='number of samples per epoch')
+parser.add_argument('--nsamples', type=int, default=568, help='number of samples per epoch')
 parser.add_argument('--nflips', type=int, default=0, help='number of flips')
 parser.add_argument('--temperature', type=float, default=.8, help='RNN temperature')
 parser.add_argument('--lr', type=float, default=0.0001, help='learning rate, default=0.0001')
@@ -49,7 +50,7 @@ X_train, X_test, Y_train, Y_test = load_split_data(nb_val_samples, seed)
 
 # print a sample recipe to make sure everything looks right
 print('Random head, description:')
-i = 811
+i = 5
 prt('H', Y_train[i], idx2word)
 prt('D', X_train[i], idx2word)
 
