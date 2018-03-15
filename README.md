@@ -6,9 +6,6 @@ This repo implements a sequence-to-sequence encoder-decoder using Keras to summa
 
 This repo has been updated since then, so please check out tag `v1.0.0` to view the version associated with the coding challenge. Lastly, note that this repo is not being actively maintained -- I will do my best to respond to any issues opened but make no guarantees.
 
-Please consider buying me a coffee if you like my work:
-
-<a href="https://www.buymeacoffee.com/6Ii7vzL" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
 
 ## Data
 I scraped 125,000 recipes from various websites for training (additional details can be found [here](https://github.com/rtlee9/recipe-box)). Each recipe consists of:
@@ -61,3 +58,8 @@ Aside from tuning hyperparameters, there are a number of ways to potentially imp
 * Incorporate ingredients list non-sequentially, and add recipe images (see [recipe-box](https://github.com/rtlee9/recipe-box))
 * Try different RNN sequence lengths, or [variable sequence lengths](https://danijar.com/variable-sequence-lengths-in-tensorflow/)
 * Try different vocabulary sizes
+
+## Buy me a coffee
+Please consider buying me a coffee if you like my work:
+
+<a href="https://www.buymeacoffee.com/6Ii7vzL" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: auto !important;width: auto !important;" ></a>
