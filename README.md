@@ -43,9 +43,9 @@ Below are a few _cherry-picked_ in-sample predictions from the model:
 
 ## Usage (Python 3.6)
 
-* Clone repo: `git clone https://github.com/rtlee9/recipe-summarization.git`
+* Clone repo: `git clone https://github.com/rtlee9/recipe-summarization.git && cd recipe-summarization`
 * Initialize submodules: `git submodule update --init --recursive`
-* Install dependencies: `pip install -r requirements.txt`
+* Install dependencies [optional: in virtualenv]: `pip install -r requirements.txt`
 * Setup directories: `python src/config.py`
 * Download recipes from my Google Cloud Bucket: `wget -P recipe-box/data https://storage.googleapis.com/recipe-box/recipes_raw.zip; unzip recipe-box/data/recipes_raw.zip -d recipe-box/data` (alternatively, see the recipe-box submodule to scrape fresh recipe data)
 * Tokenize data: `python src/tokenize_recipes.py`
