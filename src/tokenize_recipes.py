@@ -3,6 +3,7 @@ import _pickle as pickle
 from os import path
 from nltk.tokenize import word_tokenize
 from nltk import download
+from tqdm import tqdm
 
 import config
 import prep_data
@@ -38,15 +39,12 @@ def recipe_is_complete(r):
 def tokenize_recipes(recipes):
     """Tokenise all recipes."""
     tokenized = []
-    n = len(recipes)
-    for i, r in enumerate(recipes.values()):
+    for r in tqdm(recipes.values()):
         if recipe_is_complete(r):
             ingredients = '; '.join(parse_ingredient_list(r['ingredients'])) + '; '
             tokenized.append((
                 tokenize_sentence(r['title']),
                 tokenize_sentence(ingredients) + tokenize_sentence(r['instructions'])))
-        if i % 10000 == 0:
-            print('Tokenized {:,} / {:,} recipes'.format(i, n))
     return tuple(map(list, zip(*tokenized)))
 
 
