@@ -1,0 +1,1 @@
+{"rnn_layers": 3, "vocab_size": 2464, "embedding_size": 100, "rnn_size": 512, "LR": 0.0001}
