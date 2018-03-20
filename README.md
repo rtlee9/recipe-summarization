@@ -6,6 +6,7 @@ This repo implements a sequence-to-sequence encoder-decoder using Keras to summa
 
 This repo has been updated since then, so please check out tag `v1.0.0` to view the version associated with the coding challenge. Lastly, note that this repo is not being actively maintained -- I will do my best to respond to any issues opened but make no guarantees.
 
+**New:** If you're looking to serve your trained model and make its predictions accessible to others, I'd recommend looking into [ServeIt](https://github.com/rtlee9/serveit), an open source library that lets you serve model predictions from a RESTful API using your favorite Python ML library in as little as one line of code. This repository includes an example recipe summarizer server in `src/server.py` for your reference.
 
 ## Data
 I scraped 125,000 recipes from various websites for training (additional details can be found [here](https://github.com/rtlee9/recipe-box)). Each recipe consists of:
@@ -51,6 +52,7 @@ Below are a few cherry-picked in-sample predictions from the model:
   * Initialize embeddings: `python src/vocabulary-embedding.py`
 * Train model: `python src/train_seq2seq.py`
 * Make predictions: `python src/predict.py`
+* Serve predictions from RESTful API: `python src/server.py`
 
 ## Next steps
 Aside from tuning hyperparameters, there are a number of ways to potentially improve this model:
