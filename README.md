@@ -6,6 +6,7 @@ This repo implements a sequence-to-sequence encoder-decoder using Keras to summa
 
 This repo has been updated since then, so please check out tag `v1.0.0` to view the version associated with the coding challenge. Lastly, note that this repo is not being actively maintained -- I will do my best to respond to any issues opened but make no guarantees.
 
+**New:** If you're looking to serve your trained model and make its predictions accessible to others, I'd recommend looking into [ServeIt](https://github.com/rtlee9/serveit), an open source library that lets you serve model predictions from a RESTful API using your favorite Python ML library in as little as one line of code. This repository includes an example recipe summarizer server in `src/server.py` for your reference.
 
 ## Data
 I scraped 125,000 recipes from various websites for training (additional details can be found [here](https://github.com/rtlee9/recipe-box)). Each recipe consists of:
@@ -21,7 +22,7 @@ The model was fitted on the recipe ingredients, instructions and title. Ingredie
 This model was trained for ~6 hours on an nVidia Tesla K80. Training consisted of several training iterations, in which I successively decremented the learning rate and incremented the ratio of flip augmentations.
 
 ## Sampled outputs
-Below are a few _cherry-picked_ in-sample predictions from the model:
+Below are a few cherry-picked in-sample predictions from the model:
 
 ### Example 1:
 * __Generated:__ Chicken Cake
@@ -50,7 +51,8 @@ Below are a few _cherry-picked_ in-sample predictions from the model:
   * Get GloVe vectors: `wget -P data http://nlp.stanford.edu/data/glove.6B.zip; unzip data/glove.6B.zip -d data`
   * Initialize embeddings: `python src/vocabulary-embedding.py`
 * Train model: `python src/train_seq2seq.py`
-* Make predictions: use src/predict.ipynb
+* Make predictions: `python src/predict.py`
+* Serve predictions from RESTful API: `python src/server.py`
 
 ## Next steps
 Aside from tuning hyperparameters, there are a number of ways to potentially improve this model:
