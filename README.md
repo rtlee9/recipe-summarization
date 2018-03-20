@@ -50,7 +50,7 @@ Below are a few _cherry-picked_ in-sample predictions from the model:
   * Get GloVe vectors: `wget -P data http://nlp.stanford.edu/data/glove.6B.zip; unzip data/glove.6B.zip -d data`
   * Initialize embeddings: `python src/vocabulary-embedding.py`
 * Train model: `python src/train_seq2seq.py`
-* Make predictions: use src/predict.ipynb
+* Make predictions: `python src/predict.py`
 
 ## Next steps
 Aside from tuning hyperparameters, there are a number of ways to potentially improve this model:
