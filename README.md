@@ -21,7 +21,7 @@ The model was fitted on the recipe ingredients, instructions and title. Ingredie
 This model was trained for ~6 hours on an nVidia Tesla K80. Training consisted of several training iterations, in which I successively decremented the learning rate and incremented the ratio of flip augmentations.
 
 ## Sampled outputs
-Below are a few _cherry-picked_ in-sample predictions from the model:
+Below are a few cherry-picked in-sample predictions from the model:
 
 ### Example 1:
 * __Generated:__ Chicken Cake
