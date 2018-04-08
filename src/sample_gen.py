@@ -199,6 +199,7 @@ def gensamples(
 
     samples.sort(key=lambda x: x[-1])
     codes = []
+    retstr = []
     for sample, start, score in samples:
         code = ''
         words = []
@@ -211,8 +212,14 @@ def gensamples(
         if short:
             distance = min([100] + [-Levenshtein.jaro(code, c) for c in codes])
             if distance > -0.6:
-                print(score, ' '.join(words))
+
+                temp = str(score) + ' ' + ' '.join(words)
+                retstr.append(temp)
+                print(str(score) + ' '.join(words))
         else:
+                temp = str(score) + ' ' + ' '.join(words)
+                retstr.append(temp)
                 print(score, ' '.join(words))
         codes.append(code)
-    return samples
+
+    return samples,retstr

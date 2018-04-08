@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF8">
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
+    <title>Cocktails</title>
+    <style>
+
+        *,html,body{
+        font-family: 'Titillium Web', sans-serif;
+        color:"#444444";
+        }
+    </style>
+     <script type="text/javascript">
+    var canvas, ctx, flag = false,
+        prevX = 0,
+        currX = 0,
+        prevY = 0,
+        currY = 0,
+        dot_flag = false;
+
+    var x = "black",
+        y = 20;
+
+    function init() {
+        canvas = document.getElementById('can');
+        ctx = canvas.getContext("2d");
+        w = canvas.width;
+        h = canvas.height;
+
+        canvas.addEventListener("mousemove", function (e) {
+            findxy('move', e)
+        }, false);
+        canvas.addEventListener("mousedown", function (e) {
+            findxy('down', e)
+        }, false);
+        canvas.addEventListener("mouseup", function (e) {
+            findxy('up', e)
+        }, false);
+        canvas.addEventListener("mouseout", function (e) {
+            findxy('out', e)
+        }, false);
+    }
+
+    function color(obj) {
+        switch (obj.id) {
+            case "green":
+                x = "green";
+                break;
+            case "blue":
+                x = "blue";
+                break;
+            case "red":
+                x = "red";
+                break;
+            case "yellow":
+                x = "yellow";
+                break;
+            case "orange":
+                x = "orange";
+                break;
+            case "black":
+                x = "black";
+                break;
+            case "white":
+                x = "white";
+                break;
+        }
+        if (x == "white") y = 14;
+        else y = 2;
+
+    }
+
+    function draw() {
+        ctx.beginPath();
+        ctx.moveTo(prevX, prevY);
+        ctx.lineTo(currX, currY);
+        ctx.strokeStyle = x;
+        ctx.lineWidth = y;
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    function erase() {
+        ctx.clearRect(0, 0, w, h);
+
+        document.getElementById("prediction_text").innerHTML = "";
+    }
+
+    function save() {
+
+        var dataURL = canvas.toDataURL();
+        fetch("/classify",
+        {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({"base64image": dataURL})
+        })
+        .then(function(res){
+            res.json().then(function(data){
+                document.getElementById("prediction_text").innerHTML="PREDICTION: "+data['prediction'];
+            })
+            })
+        .then(function(data){ console.log( JSON.stringify( data ) ) });
+
+    }
+
+    function findxy(res, e) {
+        if (res == 'down') {
+            prevX = currX;
+            prevY = currY;
+            currX = e.clientX - canvas.offsetLeft;
+            currY = e.clientY - canvas.offsetTop;
+
+            flag = true;
+            dot_flag = true;
+            if (dot_flag) {
+                ctx.beginPath();
+                ctx.fillStyle = x;
+                ctx.fillRect(currX, currY, 2, 2);
+                ctx.closePath();
+                dot_flag = false;
+            }
+        }
+        if (res == 'up' || res == "out") {
+            flag = false;
+        }
+        if (res == 'move') {
+            if (flag) {
+                prevX = currX;
+                prevY = currY;
+                currX = e.clientX - canvas.offsetLeft;
+                currY = e.clientY - canvas.offsetTop;
+                draw();
+            }
+        }
+    }
+    </script>
+
+</head>
+
+    <body onload="init()">
+        <center><h1> IN 4085 - Pattern Recognition</h1>
+        <h2>Digit Recognizer</h2>
+        <h5>github.com/live-wire/nist</h5>
+            <canvas id="can" width="200" height="200" style="position:relative;border:2px solid;"></canvas>
+
+            <br>
+        <input type="button" value="PREDICT" id="btn" size="30" onclick="save()" style="font-size:x-large;background:#49afcd;color:#ffffff;position:relative;padding:20px;cursor:pointer;border-radius:10px;">
+        <input type="button" value="CLEAR" id="clr" size="23" onclick="erase()" style="font-size:x-large;background:#e6e6e6;color:#cb2431;position:relative;padding:20px;cursor:pointer;border-radius:10px;">
+        <br>
+            <h3 id="prediction_text"></h3>
+        </center>
+
+
+
+    </body>
+    </html>
