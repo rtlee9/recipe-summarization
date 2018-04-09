@@ -121,6 +121,7 @@
                 kids = 0;
                 for(item in temp){
                    var li = document.createElement('li');
+                   li.style.textAlign = "left";
                    textItem = temp[item];
                    textItem = textItem.split(" ");
                    if(!parseFloat(textItem[0]))

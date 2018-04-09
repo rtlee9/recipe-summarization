@@ -5,6 +5,7 @@ import json
 import pickle
 import h5py
 import numpy as np
+
 from utils import str_shape
 import keras.backend as K
 import argparse
@@ -15,10 +16,10 @@ from model import create_model
 from sample_gen import gensamples
 
 # set seeds in random libraries
-seed = 42
+seed = 1337
 
-#random.seed(seed)
-#np.random.seed(seed)
+random.seed(seed)
+np.random.seed(seed)
 
 
 def load_weights(model, filepath):
@@ -101,7 +102,7 @@ def main(sample_str=None):
     x = [word2idx[w.rstrip('^')] for w in sample_str.split()]
 
     samples,retvals = gensamples(
-        skips=2,
+        skips=5,
         k=1,
         batch_size=2,
         short=False,
@@ -120,7 +121,7 @@ def main(sample_str=None):
     headline = samples[0][0][len(samples[0][1]):]
     ' '.join(idx2word[w] for w in headline)
     samples = None
-
+    K.clear_session()
     return retvals
 
 
