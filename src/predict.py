@@ -5,6 +5,7 @@ import json
 import pickle
 import h5py
 import numpy as np
+
 from utils import str_shape
 import keras.backend as K
 import argparse
@@ -15,7 +16,8 @@ from model import create_model
 from sample_gen import gensamples
 
 # set seeds in random libraries
-seed = 42
+seed = 1337
+
 random.seed(seed)
 np.random.seed(seed)
 
@@ -91,16 +93,16 @@ def main(sample_str=None):
             sample_title += idx2word[w] + ' '
         y = Y_data[i]
         print('Randomly sampled recipe:')
-        print(sample_title)
-        print(sample_str)
+        print("blah",sample_title)
+        print("power",sample_str)
     else:
         sample_title = ''
         y = [eos]
 
     x = [word2idx[w.rstrip('^')] for w in sample_str.split()]
 
-    samples = gensamples(
-        skips=2,
+    samples,retvals = gensamples(
+        skips=5,
         k=1,
         batch_size=2,
         short=False,
@@ -115,11 +117,18 @@ def main(sample_str=None):
         nb_unknown_words=nb_unknown_words,
     )
 
+
     headline = samples[0][0][len(samples[0][1]):]
     ' '.join(idx2word[w] for w in headline)
+    samples = None
+    K.clear_session()
+    return retvals
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--sample-str', type=str, default=None, help='Sample recipe description')
-    args = parser.parse_args()
-    main(sample_str=args.sample_str)
+
+def talk(randomstr):
+    try1 = "vodka ; beer ; sugar ; lime ; Stir all ingredients with ice and strain into a big cocktail glass . Add the sugar on the top and serve"
+    if randomstr == None:
+        randomstr = try1
+    return main(randomstr)
+
+

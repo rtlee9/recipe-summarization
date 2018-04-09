@@ -14,7 +14,7 @@ from prep_data import plt
 # static vars
 FN = 'vocabulary-embedding'
 seed = 42
-vocab_size = 40000
+vocab_size = 2464
 embedding_dim = 100
 lower = False
 
