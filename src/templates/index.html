@@ -93,6 +93,13 @@
             return;
         }
         recipe = textbar.value;
+        recipe = recipe.split(";")
+        for(item in recipe){
+            recipe[item] = recipe[item].trim();
+        }
+        recipe = recipe.join(" ; ")
+
+
         console.log(JSON.stringify({"recipe": recipe}));
 
         fetch("/predict",
