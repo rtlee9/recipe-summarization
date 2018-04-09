@@ -73,7 +73,7 @@
 
                 document.getElementById("prediction_text").innerHTML = "Thank You!";
                 setTimeout(function(){document.getElementById("prediction_text").innerHTML = "";},2000);
-
+                document.getElementById("recipe").value = "";
                 document.getElementById("slidediv").style.display="none";
             })
             })
@@ -179,7 +179,7 @@
             <div id = "slidediv" class="slidecontainer" style="width:40%;display:none;">
                 <h2>Rate these cocktail names</h2>
                 <div id="demo"></div>
-              <input type="range" min="1" max="10" value="5" class="slider" id="myRange" oninput="sliderinput()" style="display:block;"/>
+              <input type="range" min="1" max="10" value="5" class="slider" id="myRange" oninput="sliderinput()" style="display:inline-block;"/>
                 <br><br>
               <input type="button" value="SUBMIT" id="btnsubmit" size="30" onclick="submit()" style="font-size:x-large;background:#343a40;color:#ffffff;position:relative;padding:10px;cursor:pointer;border-radius:10px;">
             </div><br>
