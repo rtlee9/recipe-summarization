@@ -71,7 +71,8 @@
         .then(function(res){
             res.json().then(function(data){
 
-                document.getElementById("prediction_text").innerHTML = "";
+                document.getElementById("prediction_text").innerHTML = "Thank You!";
+                setTimeout(function(){document.getElementById("prediction_text").innerHTML = "";},2000);
 
                 document.getElementById("slidediv").style.display="none";
             })
