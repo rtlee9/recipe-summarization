@@ -31,7 +31,7 @@ def predict():
     else:
         recipestring = "vodka ; beer ; sugar ; lime ; Stir all ingredients with ice and strain into a big cocktail glass . Add the sugar on the top and serve"
 
-    result = "['John circus','death beach']"
+    result = '["John circus","Death beach"]'
     try:
         result = str(talk(recipestring))
     except Exception as e:
@@ -39,12 +39,24 @@ def predict():
 
     if(result):
         print("PREDICTION:",result)
-        return json.dumps({'Status':'OK','prediction':result})
+        return json.dumps({"Status":"OK","prediction":result})
     else:
         return json.dumps({"Status":"ERROR"})
 
-@app.route("/job")
-def job():
+@app.route("/score", methods=['GET', 'POST'])
+def score():
+    content = request.get_json(silent=True)
+    print('REQUEST:', content)
+    # Got image encoded in base 64, need to convert it to png
+    logfile = open('logs','a')
+    if (content and content['score'] and content['recipe'] and content['titles']):
+        recipestring = str(content['recipe'])
+        score = str(content['score'])
+        titles=str(content['titles'])
+        temp = recipestring+"||"+titles+"\n"+score+"\n\n";
+        logfile.write(temp)
+        print(score,recipestring)
+    logfile.close()
     return json.dumps({'Status':'OK'})
 
 if __name__ == "__main__":

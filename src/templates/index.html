@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF8">
+    <link href="https://fonts.googleapis.com/css?family=Titillium+Web" rel="stylesheet">
+    <title>Cocktails</title>
+    <style>
+
+        *,html,body{
+        font-family: 'Titillium Web', sans-serif;
+        color:"#444444";
+        }
+
+         .slidecontainer {
+        width: 100%; /* Width of the outside container */
+    }
+
+    /* The slider itself */
+    .slider {
+        -webkit-appearance: none;  /* Override default CSS styles */
+        appearance: none;
+        width: 100%; /* Full-width */
+        height: 10px; /* Specified height */
+        background: #d3d3d3; /* Grey background */
+        outline: none; /* Remove outline */
+        opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+        -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+        transition: opacity .2s;
+    }
+
+    /* Mouse-over effects */
+    .slider:hover {
+        opacity: 1; /* Fully shown on mouse-over */
+    }
+
+    /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none; /* Override default look */
+        appearance: none;
+        width: 25px; /* Set a specific slider handle width */
+        height: 25px; /* Slider handle height */
+        background: #343a40;; /* Green background */
+        cursor: pointer; /* Cursor on hover */
+        border-radius:25px;
+    }
+
+    .slider::-moz-range-thumb {
+        width: 25px; /* Set a specific slider handle width */
+        height: 25px; /* Slider handle height */
+        background: #343a40;; /* Green background */
+        cursor: pointer; /* Cursor on hover */
+    }
+    </style>
+     <script type="text/javascript">
+
+    function erase() {
+        document.getElementById("prediction_text").innerHTML = "";
+        document.getElementById("recipe").value = "";
+        document.getElementById("slidediv").style.display="none";
+    }
+    function submit() {
+        var recipe = document.getElementById("recipe").value;
+        var score = document.getElementById("myRange").value;
+        fetch("/score",
+        {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({"recipe": recipe,"score":score,"titles":window.proost})
+        })
+        .then(function(res){
+            res.json().then(function(data){
+
+                document.getElementById("prediction_text").innerHTML = "";
+
+                document.getElementById("slidediv").style.display="none";
+            })
+            })
+        .then(function(data){ console.log( JSON.stringify( data ) ) });
+
+    }
+
+    function save() {
+
+        document.getElementById("slidediv").style.display="none";
+        document.getElementById("prediction_text").innerHTML = "Hold on . . .";
+
+        textbar = document.getElementById("recipe");
+        if(textbar.value=="")
+        {
+            console.log("NO RECIPE ENTERED!");
+            document.getElementById("prediction_text").innerHTML = "";
+            return;
+        }
+        recipe = textbar.value;
+        console.log(JSON.stringify({"recipe": recipe}));
+
+        fetch("/predict",
+        {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({"recipe": recipe})
+        })
+        .then(function(res){
+            res.json().then(function(data){
+
+                var temp = data['prediction'].replace(/'/g, '"');
+                temp = JSON.parse(temp)
+                window.proost = temp;
+                var wrap = document.createElement('div');
+                var ul = document.createElement('ul');
+                ul.style.width = "20%";
+                kids = 0;
+                for(item in temp){
+                   var li = document.createElement('li');
+                   textItem = temp[item];
+                   textItem = textItem.split(" ");
+                   if(!parseFloat(textItem[0]))
+                   {
+                        console.log("");
+                   }
+                   else{
+                    textItem = textItem.slice(1, textItem.length);
+                   }
+
+                   textItem = textItem.join(" ");
+                   textItem = textItem.trim();
+                   if(textItem!=""){
+                    li.innerHTML =  textItem;
+                    ul.appendChild(li);
+                    kids = kids+1;
+                   }
+                }
+                if(kids!=0)
+                {
+                    wrap.appendChild(ul.cloneNode(true));
+                    document.getElementById("prediction_text").innerHTML=wrap.innerHTML;
+                    document.getElementById("slidediv").style.display="block";
+                }
+                else{
+                    save();
+                }
+            })
+            })
+        .then(function(data){ console.log( JSON.stringify( data ) ) });
+
+    }
+
+    function sliderinput() {
+        document.getElementById("demo").innerHTML = document.getElementById("myRange").value;
+    }
+    </script>
+
+</head>
+
+    <body>
+        <center>
+            <h1> IN 4325 - Information Retrieval</h1>
+        <h2>Mystery Machine</h2>
+        <h5>Your Cocktail- Should be called?</h5>
+            <br>
+            <input type="text" id="recipe" placeholder="ingredient1; ingredient2; ingredient3; instructions" style="width: 40%;display: block;padding: 1%;margin: 2%;border-radius: 10px;font-size: 15px;" />
+        <input type="button" value="PROOST" id="btn" size="30" onclick="save()" style="font-size:x-large;background:#343a40;color:#ffffff;position:relative;padding:20px;cursor:pointer;border-radius:10px;">
+        <input type="button" value="RESET" id="clr" size="23" onclick="erase()" style="font-size:x-large;background:#e6e6e6;color:#cb2431;position:relative;padding:20px;cursor:pointer;border-radius:10px;">
+        <br>
+            <h3 id="prediction_text" style="color:#cb2431;"></h3>
+
+
+
+            <div id = "slidediv" class="slidecontainer" style="width:40%;display:none;">
+                <h2>Rate these cocktail names</h2>
+                <div id="demo"></div>
+              <input type="range" min="1" max="10" value="5" class="slider" id="myRange" oninput="sliderinput()" style="display:block;"/>
+                <br><br>
+              <input type="button" value="SUBMIT" id="btnsubmit" size="30" onclick="submit()" style="font-size:x-large;background:#343a40;color:#ffffff;position:relative;padding:10px;cursor:pointer;border-radius:10px;">
+            </div><br>
+
+
+        </center>
+
+
+
+    </body>
+    </html>
